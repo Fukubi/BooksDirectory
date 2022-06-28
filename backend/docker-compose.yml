@@ -1,0 +1,9 @@
+version: '3.1'
+
+services:
+  database:
+    image: postgres:14.4
+    environment:
+      POSTGRES_PASSWORD: devenv
+    ports:
+      - 5432:5432
