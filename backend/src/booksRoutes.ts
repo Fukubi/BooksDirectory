@@ -9,6 +9,7 @@ const prisma = new PrismaClient();
  */
  booksRouter.use((_, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "*");
     next();
 });
 
