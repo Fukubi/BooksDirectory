@@ -4,6 +4,14 @@ import { Router } from "express";
 const booksRouter = Router();
 const prisma = new PrismaClient();
 
+/**
+ * Middleware to fix CORS issues
+ */
+ booksRouter.use((_, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    next();
+});
+
 booksRouter.get("/", async (_, res) => {
     res.send(await prisma.book.findMany());
 });
