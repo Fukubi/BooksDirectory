@@ -4,6 +4,7 @@ import { BsTrash, BsPencil, BsPlusCircle } from "react-icons/bs";
 import { api } from "../util/Api";
 import { Book } from "../interfaces/Book";
 import { Button } from "./Button";
+import { useNavigate } from "react-router-dom";
 
 const DataTable = styled.table`
     border-collapse: collapse;
@@ -27,6 +28,7 @@ const DataTable = styled.table`
 
 export function BooksDataTable() {
     const [books, setBooks] = useState<Book[]>([]);
+    const navigate = useNavigate();
 
     function onDeletePress(book: Book) {
         api.delete(`/${book.id}`).then((_) => {
@@ -38,7 +40,6 @@ export function BooksDataTable() {
 
     useEffect(() => {
         api.get("/").then((response) => {
-            console.log(response.data);
             setBooks(response.data);
         }).catch((err) => {
             console.log(err);
@@ -63,11 +64,13 @@ export function BooksDataTable() {
                             <td>{book.name}</td>
                             <td>{book.author}</td>
                             <td>{book.publisher}</td>
-                            <td>{book.releaseDate.toString()}</td>
+                            <td>{book.releaseDate.toString().split('T')[0]}</td>
 
                             <td>
                                 <div>
-                                    <Button>
+                                    <Button
+                                        onClick={(e) => navigate('/edit', { state: { book: book } })}
+                                    >
                                         <BsPencil size={32} color="#f5eb2d" />
                                     </Button>
                                     <Button

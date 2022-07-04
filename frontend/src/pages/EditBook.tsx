@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsArrowLeft } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Button } from "../components/Button";
 import { Container } from "../components/Container";
+import { Book } from "../interfaces/Book";
 import { api } from "../util/Api";
 
 const FormContainer = styled.form`
@@ -28,16 +29,35 @@ const FormContainer = styled.form`
     }
 `
 
-export function NewBook() {
+interface LocationState {
+    book: Book
+}
+
+export function EditBook() {
     const [name, setName] = useState('');
     const [author, setAuthor] = useState('');
     const [publisher, setPublisher] = useState('');
     const [releaseDate, setReleaseDate] = useState<Date | null>();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [book, setBook] = useState<Book>((location.state as LocationState).book);
+
+    useEffect(() => {
+        console.log(book);
+        setName(book.name);
+        setAuthor(book.author);
+
+        if (book.publisher)
+            setPublisher(book.publisher);
+
+        setReleaseDate(book.releaseDate);
+    }, []);
 
     function onFormSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
         const requestBody = {
+            id: book.id,
             name: name,
             author: author,
             publisher: publisher,
@@ -46,15 +66,12 @@ export function NewBook() {
 
         console.log(requestBody);
 
-        api.post("/", requestBody)
-            .then((res) => {
-                alert('Livro criado com sucesso!');
-                setName('');
-                setAuthor('');
-                setPublisher('');
-                setReleaseDate(null);
-            }).catch((err) => {
-                alert('Erro ao salvar livro');
+        api.patch("/", requestBody)
+            .then((_) => {
+                alert('Livro editado com sucesso!');
+                navigate('/');
+            }).catch((_) => {
+                alert('Erro ao editar livro');
             });
     }
 
@@ -112,11 +129,13 @@ export function NewBook() {
                         name="release-date"
                         id="release-date"
                         value={releaseDate?.toString().split('T')[0]}
-                        onChange={(e) => setReleaseDate(e.target.valueAsDate)}
+                        onChange={(e) => {
+                            setReleaseDate(e.target.valueAsDate?.toISOString().split('T')[0] as undefined);
+                        }}
                     />
                 </div>
 
-                <button type="submit">Add book</button>
+                <button type="submit">Edit book</button>
             </FormContainer>
         </Container>
     );
